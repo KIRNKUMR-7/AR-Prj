@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print AR Marker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .marker-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .marker-container img {
+            max-width: 100%;
+            height: auto;
+            border: 3px solid #333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .instructions {
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .instructions h2 {
+            margin-top: 0;
+            color: #667eea;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .tips {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .tips h2 {
+            margin-top: 0;
+            color: #856404;
+        }
+
+        .tips ul {
+            padding-left: 20px;
+        }
+
+        .tips li {
+            margin: 8px 0;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .next-step {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .next-step h2 {
+            margin-top: 0;
+            color: #155724;
+        }
+
+        .next-step a {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .next-step a:hover {
+            background: #218838;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .instructions,
+            .tips,
+            .next-step,
+            .button-container,
+            h1,
+            .subtitle {
+                display: none;
+            }
+
+            .marker-container {
+                background: white;
+                padding: 0;
+            }
+
+            .marker-container img {
+                width: 15cm;
+                height: 15cm;
+                display: block;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎯 AR Marker for Pizza Project</h1>
+        <p class="subtitle">Print this marker to use with your AR experience</p>
+
+        <div class="marker-container">
+            <img src="hiro-marker.png" alt="Hiro AR Marker" id="markerImage">
+        </div>
+
+        <div class="button-container">
+            <button onclick="window.print()">🖨️ Print This Marker</button>
+        </div>
+
+        <div class="instructions">
+            <h2>📋 Printing Instructions</h2>
+            <ol>
+                <li><strong>Click the "Print This Marker" button above</strong></li>
+                <li><strong>Use A4 or Letter size white paper</strong> - The marker needs good contrast</li>
+                <li><strong>Print in high quality</strong> - Select "Best" or "High Quality" in print settings</li>
+                <li><strong>Ensure it's not scaled</strong> - The marker should be approximately 15cm x 15cm</li>
+                <li><strong>Keep it flat</strong> - Place the printed marker on a flat surface or attach it to cardboard
+                </li>
+            </ol>
+        </div>
+
+        <div class="tips">
+            <h2>💡 Tips for Best Results</h2>
+            <ul>
+                <li><strong>Lighting:</strong> Make sure the marker is well-lit when using AR</li>
+                <li><strong>No Glare:</strong> Avoid reflective surfaces or lamination that causes glare</li>
+                <li><strong>Clean Print:</strong> Ensure the black border and pattern are crisp and clear</li>
+                <li><strong>Flat Surface:</strong> Keep the marker completely flat for better tracking</li>
+                <li><strong>Distance:</strong> Hold your phone 20-50cm away from the marker</li>
+            </ul>
+        </div>
+
+        <div class="next-step">
+            <h2>✅ After Printing</h2>
+            <p>Once you've printed the marker, open the AR experience on your mobile device:</p>
+            <a href="ar-experience.html">Launch AR Experience →</a>
+            <p style="margin-top: 15px; font-size: 14px; color: #666;">
+                <strong>Note:</strong> You'll need to serve this over HTTPS for mobile camera access.<br>
+                See README.md for detailed instructions.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Ensure image is loaded before printing
+        document.getElementById('markerImage').addEventListener('load', function () {
+            console.log('Marker image loaded successfully');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Menu - QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .alert {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .alert h3 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .alert p {
+            color: #155724;
+            line-height: 1.6;
+            margin: 5px 0;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        .warning h3 {
+            color: #856404;
+        }
+
+        .warning p {
+            color: #856404;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .qr-preview {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .secondary-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .success-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .steps h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .steps ol {
+            padding-left: 20px;
+        }
+
+        .steps li {
+            margin: 10px 0;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .steps li strong {
+            color: #333;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+
+            .button-group,
+            .input-group,
+            .alert,
+            .warning,
+            .steps,
+            h1,
+            .subtitle {
+                display: none;
+            }
+
+            .qr-preview {
+                background: white;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🍕 AR Menu QR Code Generator</h1>
+        <p class="subtitle">Create a QR code that shows your pizza in AR when scanned!</p>
+
+        <div class="alert">
+            <h3>✨ How This Works</h3>
+            <p><strong>Step 1:</strong> Deploy your project to get an HTTPS URL</p>
+            <p><strong>Step 2:</strong> Enter the URL below and generate QR code</p>
+            <p><strong>Step 3:</strong> Print the QR code on your menu</p>
+            <p><strong>Step 4:</strong> Customers scan QR → AR opens → Point at QR → Pizza appears!</p>
+        </div>
+
+        <div class="input-group">
+            <label for="urlInput">Enter your deployed AR experience URL:</label>
+            <input type="text" id="urlInput" placeholder="https://your-site.com/qr-ar-direct.html"
+                value="https://your-site.com/qr-ar-direct.html">
+        </div>
+
+        <div class="button-group">
+            <button onclick="generateQR()">🔄 Generate QR Code</button>
+        </div>
+
+        <div class="qr-preview">
+            <h2 style="margin-bottom: 20px; color: #333;">Your AR Menu QR Code</h2>
+            <p style="color: #666; margin-bottom: 20px;">
+                Print this QR code on your menu. When customers scan it, they'll see the pizza in 3D AR!
+            </p>
+            <div id="qrcode"></div>
+            <p style="margin-top: 20px; color: #666; font-size: 14px;">
+                <strong>Scan this QR code</strong> to open the AR experience<br>
+                Then <strong>point your camera back at this QR code</strong> to see the pizza!
+            </p>
+        </div>
+
+        <div class="button-group">
+            <button onclick="downloadQR()">💾 Download QR Code</button>
+            <button onclick="printQR()" class="secondary-btn">🖨️ Print QR Code</button>
+            <button onclick="generateMenuPage()" class="success-btn">📄 Create Full Menu Page</button>
+        </div>
+
+        <div class="warning">
+            <h3>⚠️ Important Notes</h3>
+            <p><strong>1. HTTPS Required:</strong> Your URL must be HTTPS (not HTTP) for camera access</p>
+            <p><strong>2. QR Code is the Marker:</strong> The QR code itself is the AR marker - customers scan it, then
+                keep pointing at it</p>
+            <p><strong>3. Size Matters:</strong> Print the QR code at least 5cm x 5cm for best tracking</p>
+            <p><strong>4. Good Lighting:</strong> Ensure the menu is well-lit for AR to work properly</p>
+        </div>
+
+        <div class="steps">
+            <h3>🚀 Deployment Options</h3>
+            <ol>
+                <li><strong>GitHub Pages (Free):</strong> Upload to GitHub, enable Pages in Settings</li>
+                <li><strong>Netlify (Free):</strong> Drag & drop your folder at netlify.com</li>
+                <li><strong>Vercel (Free):</strong> Deploy instantly at vercel.com</li>
+                <li><strong>ngrok (Testing):</strong> Use for quick testing before permanent deployment</li>
+            </ol>
+            <p style="margin-top: 15px;"><strong>See DEPLOYMENT.md for detailed instructions</strong></p>
+        </div>
+    </div>
+
+    <script>
+        let qrCodeInstance = null;
+
+        // Generate QR code on page load
+        window.addEventListener('load', function () {
+            generateQR();
+        });
+
+        function generateQR() {
+            const url = document.getElementById('urlInput').value.trim();
+
+            if (!url) {
+                alert('Please enter a URL first!');
+                return;
+            }
+
+            // Validate URL
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('Please enter a valid URL (must start with http:// or https://)');
+                return;
+            }
+
+            // Clear previous QR code
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+
+            // Generate new QR code with high error correction
+            qrCodeInstance = new QRCode(qrContainer, {
+                text: url,
+                width: 300,
+                height: 300,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H // High error correction
+            });
+        }
+
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Please generate a QR code first!');
+                return;
+            }
+
+            canvas.toBlob(function (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'ar-menu-qr-code.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        function printQR() {
+            window.print();
+        }
+
+        function generateMenuPage() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Please generate a QR code first!');
+                return;
+            }
+
+            // Convert canvas to data URL
+            const qrDataUrl = canvas.toDataURL('image/png');
+
+            // Create a new window with menu template
+            const menuWindow = window.open('', '_blank');
+            menuWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>AR Pizza Menu</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 0;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: white;
+    }
+    .menu-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #2d2d2d;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 3px solid #f39c12;
+      padding-bottom: 20px;
+    }
+    .header h1 {
+      font-size: 48px;
+      margin: 0;
+      color: #f39c12;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .header p {
+      font-size: 18px;
+      margin: 10px 0 0 0;
+      color: #bbb;
+    }
+    .menu-item {
+      background: #1a1a1a;
+      padding: 30px;
+      margin: 20px 0;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      border: 2px solid #444;
+    }
+    .qr-section {
+      flex-shrink: 0;
+    }
+    .qr-section img {
+      width: 200px;
+      height: 200px;
+      border: 5px solid #f39c12;
+      border-radius: 10px;
+      background: white;
+      padding: 10px;
+    }
+    .item-details {
+      flex-grow: 1;
+    }
+    .item-details h2 {
+      font-size: 36px;
+      margin: 0 0 10px 0;
+      color: #f39c12;
+    }
+    .item-details p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #ccc;
+      margin: 10px 0;
+    }
+    .price {
+      font-size: 32px;
+      font-weight: bold;
+      color: #4CAF50;
+      margin: 15px 0;
+    }
+    .ar-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .instructions {
+      background: #667eea;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .instructions h3 {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+    }
+    .instructions p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      .menu-container {
+        background: white;
+        box-shadow: none;
+      }
+      .menu-item {
+        background: #f5f5f5;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="menu-container">
+    <div class="header">
+      <h1>🍕 Smart Menu</h1>
+      <p>Experience Our Dishes in Augmented Reality</p>
+    </div>
+
+    <div class="menu-item">
+      <div class="qr-section">
+        <img src="${qrDataUrl}" alt="AR QR Code">
+      </div>
+      <div class="item-details">
+        <h2>Italian Supreme</h2>
+        <p>
+          Pepperoni, Italian sausage, fresh tomato slices,<br>
+          green bell peppers, red onions, black olives, mozzarella<br>
+          & fresh basil
+        </p>
+        <div class="price">$16.99</div>
+        <span class="ar-badge">📱 View in AR</span>
+        <div class="instructions">
+          <h3>How to View in AR</h3>
+          <p>1. Scan this QR code with your phone camera</p>
+          <p>2. Allow camera permissions when prompted</p>
+          <p>3. Point your camera back at this QR code</p>
+          <p>4. Watch the pizza appear in 3D on your table!</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #444;">
+      <p style="color: #888; font-size: 14px;">
+        Powered by AR Technology | Scan to Experience
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+      `);
+            menuWindow.document.close();
+        }
+
+        // Update QR code when URL changes
+        document.getElementById('urlInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+    </script>
+</body>
+
+</html>
