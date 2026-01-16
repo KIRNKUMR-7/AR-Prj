@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Pizza - Surface Detection</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        model-viewer {
+            width: 100vw;
+            height: 100vh;
+            background-color: transparent;
+        }
+
+        #ar-button {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #ar-button:hover {
+            transform: translateX(-50%) translateY(-3px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        #ar-button:active {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #instructions {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px 30px;
+            border-radius: 15px;
+            color: white;
+            z-index: 999;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        #instructions h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            color: #667eea;
+        }
+
+        #instructions p {
+            margin: 8px 0;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        #instructions .step {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 25px;
+            border-radius: 15px;
+            color: white;
+            z-index: 998;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .controls.active {
+            display: block;
+        }
+
+        .control-item {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-item label {
+            font-size: 14px;
+            min-width: 80px;
+        }
+
+        .control-item input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .control-item .value {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+
+        #loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading">
+        <div class="loader"></div>
+        <h2>Loading AR Experience...</h2>
+        <p>Preparing your 3D pizza</p>
+    </div>
+
+    <div id="instructions">
+        <h3>🍕 AR Pizza Instructions</h3>
+        <div class="step">
+            <strong>Step 1:</strong> Tap the "View in AR" button below
+        </div>
+        <div class="step">
+            <strong>Step 2:</strong> Point your camera at a flat surface (table, floor)
+        </div>
+        <div class="step">
+            <strong>Step 3:</strong> Tap to place the pizza on the surface
+        </div>
+        <p style="margin-top: 15px; font-size: 13px; opacity: 0.8;">
+            Works best on newer phones with AR support
+        </p>
+    </div>
+
+    <model-viewer id="pizzaViewer" src="pizza.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls
+        auto-rotate shadow-intensity="1" exposure="1.2" ar-scale="fixed" alt="3D Pizza Model">
+        <button slot="ar-button" id="ar-button">
+            📱 View Pizza in AR
+        </button>
+    </model-viewer>
+
+    <div class="controls" id="controls">
+        <div class="control-item">
+            <label>Size:</label>
+            <input type="range" id="scaleSlider" min="0.5" max="3" step="0.1" value="1">
+            <span class="value" id="scaleValue">1.0</span>
+        </div>
+    </div>
+
+    <script>
+        const modelViewer = document.querySelector('#pizzaViewer');
+        const loading = document.querySelector('#loading');
+        const instructions = document.querySelector('#instructions');
+        const controls = document.querySelector('#controls');
+        const scaleSlider = document.querySelector('#scaleSlider');
+        const scaleValue = document.querySelector('#scaleValue');
+
+        // Hide loading when model is loaded
+        modelViewer.addEventListener('load', () => {
+            setTimeout(() => {
+                loading.classList.add('hidden');
+            }, 1000);
+        });
+
+        // Handle AR session
+        modelViewer.addEventListener('ar-status', (event) => {
+            if (event.detail.status === 'session-started') {
+                console.log('AR session started');
+                instructions.classList.add('hidden');
+                controls.classList.add('active');
+            } else if (event.detail.status === 'not-presenting') {
+                console.log('AR session ended');
+                instructions.classList.remove('hidden');
+                controls.classList.remove('active');
+            }
+        });
+
+        // Scale control
+        scaleSlider.addEventListener('input', (e) => {
+            const scale = parseFloat(e.target.value);
+            modelViewer.scale = `${scale} ${scale} ${scale}`;
+            scaleValue.textContent = scale.toFixed(1);
+        });
+
+        // Auto-hide instructions after 10 seconds
+        setTimeout(() => {
+            if (!instructions.classList.contains('hidden')) {
+                instructions.style.transition = 'opacity 0.5s';
+                instructions.style.opacity = '0';
+                setTimeout(() => {
+                    instructions.classList.add('hidden');
+                }, 500);
+            }
+        }, 10000);
+
+        // Error handling
+        modelViewer.addEventListener('error', (event) => {
+            console.error('Model viewer error:', event);
+            loading.innerHTML = `
+        <h2>⚠️ Error Loading AR</h2>
+        <p>Please make sure you're using a compatible device</p>
+        <p style="font-size: 14px; margin-top: 20px;">
+          Try using Chrome on Android or Safari on iPhone
+        </p>
+      `;
+        });
+
+        // Check AR support
+        if (modelViewer.canActivateAR) {
+            console.log('AR is supported on this device');
+        } else {
+            console.log('AR may not be fully supported on this device');
+        }
+    </script>
+</body>
+
+</html>
