@@ -13,91 +13,6 @@
       overflow: hidden;
     }
 
-    #instructions {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      padding: 15px 25px;
-      border-radius: 12px;
-      color: white;
-      z-index: 1000;
-      text-align: center;
-      max-width: 90%;
-      font-family: Arial, sans-serif;
-    }
-
-    #instructions h3 {
-      margin: 0 0 10px 0;
-      font-size: 18px;
-      color: #4CAF50;
-    }
-
-    #instructions p {
-      margin: 5px 0;
-      font-size: 14px;
-    }
-
-    #controls {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      padding: 15px 20px;
-      border-radius: 12px;
-      color: white;
-      z-index: 999;
-      min-width: 280px;
-      max-width: 90%;
-      font-family: Arial, sans-serif;
-    }
-
-    .control-group {
-      margin: 10px 0;
-    }
-
-    .control-group label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
-      font-size: 13px;
-    }
-
-    .control-group input[type="range"] {
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 5px;
-      outline: none;
-    }
-
-    .value {
-      background: rgba(76, 175, 80, 0.5);
-      padding: 2px 8px;
-      border-radius: 5px;
-      font-size: 12px;
-    }
-
-    button {
-      background: #4CAF50;
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
     /* Ensure A-Frame scene takes full screen */
     a-scene {
       width: 100vw;
@@ -110,108 +25,34 @@
 </head>
 
 <body>
-  <div id="instructions">
-    <h3>📷 AR Camera Active</h3>
-    <p>Point at a flat surface</p>
-    <p style="font-size: 12px; opacity: 0.8;">Pizza will appear automatically</p>
-  </div>
-
-  <div id="controls">
-    <div class="control-group">
-      <label>
-        <span>Size</span>
-        <span class="value" id="scaleValue">1.5</span>
-      </label>
-      <input type="range" id="scaleSlider" min="0.5" max="4" step="0.1" value="1.5">
-    </div>
-
-    <div class="control-group">
-      <label>
-        <span>Height</span>
-        <span class="value" id="heightValue">0.3</span>
-      </label>
-      <input type="range" id="heightSlider" min="0" max="2" step="0.1" value="0.3">
-    </div>
-
-    <button onclick="resetPizza()">Reset Position</button>
-  </div>
-
-  <a-scene embedded
-    arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-    vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;" vr-mode-ui="enabled: false"
+    renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
     device-orientation-permission-ui="enabled: false">
-    <!-- Camera with GPS -->
+    <!-- Camera -->
     <a-camera gps-camera="simulateLatitude: 0; simulateLongitude: 0;" rotation-reader
       look-controls-enabled="false"></a-camera>
 
-    <!-- Pizza Model -->
-    <a-entity id="pizza" gltf-model="pizza.glb" scale="1.5 1.5 1.5" position="0 0.3 -2" rotation="0 0 0"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"
+    <!-- Pizza Model - Perfectly centered -->
+    <a-entity id="pizza" gltf-model="pizza.glb" scale="2 2 2" position="0 0 -2.5" rotation="0 0 0"
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
       gps-entity-place="latitude: 0; longitude: 0;"></a-entity>
 
     <!-- Lighting -->
-    <a-light type="ambient" color="#FFF" intensity="0.8"></a-light>
-    <a-light type="directional" position="1 1 1" intensity="0.6"></a-light>
+    <a-light type="ambient" color="#FFF" intensity="0.9"></a-light>
+    <a-light type="directional" position="1 1 1" intensity="0.7"></a-light>
+    <a-light type="point" position="0 1 -2.5" intensity="0.5"></a-light>
   </a-scene>
 
   <script>
-    const pizza = document.querySelector('#pizza');
-    const scaleSlider = document.querySelector('#scaleSlider');
-    const heightSlider = document.querySelector('#heightSlider');
-    const scaleValue = document.querySelector('#scaleValue');
-    const heightValue = document.querySelector('#heightValue');
-    const instructions = document.querySelector('#instructions');
-
-    // Wait for scene to load
-    document.querySelector('a-scene').addEventListener('loaded', function () {
-      console.log('AR Scene loaded');
-
-      // Hide instructions after 5 seconds
-      setTimeout(() => {
-        instructions.style.transition = 'opacity 0.5s';
-        instructions.style.opacity = '0';
-        setTimeout(() => {
-          instructions.classList.add('hidden');
-        }, 500);
-      }, 5000);
-    });
-
-    // Scale control
-    scaleSlider.addEventListener('input', (e) => {
-      const scale = parseFloat(e.target.value);
-      pizza.setAttribute('scale', `${scale} ${scale} ${scale}`);
-      scaleValue.textContent = scale.toFixed(1);
-    });
-
-    // Height control
-    heightSlider.addEventListener('input', (e) => {
-      const height = parseFloat(e.target.value);
-      const pos = pizza.getAttribute('position');
-      pizza.setAttribute('position', `${pos.x} ${height} ${pos.z}`);
-      heightValue.textContent = height.toFixed(1);
-    });
-
-    // Reset function
-    function resetPizza() {
-      pizza.setAttribute('scale', '1.5 1.5 1.5');
-      pizza.setAttribute('position', '0 0.3 -2');
-      scaleSlider.value = 1.5;
-      heightSlider.value = 0.3;
-      scaleValue.textContent = '1.5';
-      heightValue.textContent = '0.3';
-    }
-
-    // Request camera permission explicitly
+    // Request camera permission
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then(function (stream) {
           console.log('Camera access granted');
-          // Stop the stream as AR.js will handle it
           stream.getTracks().forEach(track => track.stop());
         })
         .catch(function (err) {
           console.error('Camera access denied:', err);
-          alert('Please allow camera access to use AR');
         });
     }
   </script>
