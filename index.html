@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>AR Pizza Camera</title>
+  <title>AR Pizza</title>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
   <style>
@@ -12,64 +12,31 @@
       margin: 0;
       overflow: hidden;
     }
-
-    /* Ensure A-Frame scene takes full screen */
-    a-scene {
-      width: 100vw;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-    }
   </style>
 </head>
 
 <body>
-  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false"
-    renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
-    device-orientation-permission-ui="enabled: false">
-    <!-- Camera -->
-    <a-camera position="0 0 0" look-controls-enabled="false"></a-camera>
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
+    <a-camera position="0 1.6 0"></a-camera>
 
-    <!-- Pizza Model - Fixed center position -->
-    <a-entity id="pizza" gltf-model="https://kirnkumr-7.github.io/AR-Prj/pizza.glb" scale="1.5 1.5 1.5"
-      position="0 0 -3" rotation="-90 0 0"
-      animation="property: rotation; to: -90 360 0; loop: true; dur: 8000; easing: linear"></a-entity>
+    <!-- Pizza - Always visible in front of camera -->
+    <a-entity gltf-model="https://kirnkumr-7.github.io/AR-Prj/pizza.glb" position="0 1.2 -2" scale="1 1 1"
+      rotation="-90 0 0"
+      animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"></a-entity>
 
-    <!-- Lighting -->
-    <a-light type="ambient" color="#FFF" intensity="1"></a-light>
-    <a-light type="directional" position="1 1 1" intensity="0.8"></a-light>
-    <a-light type="point" position="0 0 -3" intensity="0.6"></a-light>
+    <!-- Lights -->
+    <a-light type="ambient" intensity="1.2"></a-light>
+    <a-light type="directional" position="1 1 1" intensity="1"></a-light>
   </a-scene>
 
   <script>
-    // Request camera permission
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(function (stream) {
-          console.log('Camera access granted');
-          stream.getTracks().forEach(track => track.stop());
-        })
-        .catch(function (err) {
-          console.error('Camera access denied:', err);
-        });
-    }
-
-    // Check if model loads
-    document.querySelector('a-scene').addEventListener('loaded', function () {
-      console.log('AR Scene loaded');
-
-      const pizza = document.querySelector('#pizza');
-      if (pizza) {
-        pizza.addEventListener('model-loaded', function () {
-          console.log('Pizza model loaded successfully!');
-        });
-
-        pizza.addEventListener('model-error', function (error) {
-          console.error('Error loading pizza model:', error);
-        });
-      }
-    });
+    // Ensure camera permission
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => {
+        console.log('Camera OK');
+        stream.getTracks().forEach(t => t.stop());
+      })
+      .catch(err => console.error('Camera error:', err));
   </script>
 </body>
 
