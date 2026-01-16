@@ -19,9 +19,9 @@
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
     <a-camera position="0 0 0"></a-camera>
 
-    <!-- Pizza - Stays in world, horizontal, touch to rotate -->
+    <!-- Pizza - Horizontal (flat), clear vision -->
     <a-entity id="pizza" gltf-model="https://kirnkumr-7.github.io/AR-Prj/pizza.glb" position="0 0.5 -2"
-      scale="0.8 0.8 0.8" rotation="0 0 0" class="clickable"></a-entity>
+      scale="1.2 1.2 1.2" rotation="-90 0 0" class="clickable"></a-entity>
 
     <!-- Lights -->
     <a-light type="ambient" intensity="1.5"></a-light>
@@ -33,7 +33,7 @@
     let currentRotation = 0;
     const pizza = document.querySelector('#pizza');
 
-    // Touch/click to rotate
+    // Touch/click to rotate (Y axis for horizontal pizza)
     pizza.addEventListener('click', function () {
       if (!isRotating) {
         // Start rotation
@@ -41,7 +41,7 @@
         currentRotation += 90; // Rotate 90 degrees each tap
         pizza.setAttribute('animation', {
           property: 'rotation',
-          to: `0 ${currentRotation} 0`,
+          to: `-90 ${currentRotation} 0`,
           dur: 500,
           easing: 'easeInOutQuad'
         });
@@ -66,7 +66,7 @@
       if (touchStartX !== 0) {
         const deltaX = e.detail.intersection.point.x - touchStartX;
         currentRotation = touchStartRotation + (deltaX * 100);
-        pizza.setAttribute('rotation', `0 ${currentRotation} 0`);
+        pizza.setAttribute('rotation', `-90 ${currentRotation} 0`);
       }
     });
 
