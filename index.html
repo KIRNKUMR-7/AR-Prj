@@ -29,18 +29,66 @@
   </a-scene>
 
   <script>
-    let currentRotation = 0;
     const pizza = document.querySelector('#pizza');
+    let startDistance = 0;
+    let startScale = 0.15; // Matches initial scale
+    let isPinching = false;
+    let startX = 0;
+    let startRotationY = 0;
 
-    // Touch/click to rotate
-    pizza.addEventListener('click', function () {
-      currentRotation += 90;
-      pizza.setAttribute('animation', {
-        property: 'rotation',
-        to: `0 ${currentRotation} 0`,
-        dur: 500,
-        easing: 'easeInOutQuad'
-      });
+    // Touch Handling for Zoom (Pinch) and Rotate (Drag)
+    document.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 2) {
+        // Pinch started
+        isPinching = true;
+        startDistance = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+        // Get current scale (assuming uniform)
+        let currentScaleStr = pizza.getAttribute('scale');
+        startScale = typeof currentScaleStr === 'object' ? currentScaleStr.x : parseFloat(currentScaleStr); // Safe check
+      } else if (e.touches.length === 1) {
+        // Drag rotate started
+        startX = e.touches[0].pageX;
+        let rot = pizza.getAttribute('rotation');
+        startRotationY = rot ? rot.y : 0;
+      }
+    });
+
+    document.addEventListener('touchmove', function (e) {
+      if (e.touches.length === 2 && isPinching) {
+        // Pinch Move - Scale
+        e.preventDefault(); // Prevent page zoom
+        const currentDistance = Math.hypot(
+          e.touches[0].pageX - e.touches[1].pageX,
+          e.touches[0].pageY - e.touches[1].pageY
+        );
+
+        if (startDistance > 0) {
+          const scaleFactor = currentDistance / startDistance;
+          let newScale = startScale * scaleFactor;
+
+          // Limit scale limits
+          newScale = Math.max(0.05, Math.min(newScale, 0.5));
+
+          pizza.setAttribute('scale', `${newScale} ${newScale} ${newScale}`);
+        }
+      } else if (e.touches.length === 1 && !isPinching) {
+        // One finger Move - Rotate
+        const currentX = e.touches[0].pageX;
+        const deltaX = currentX - startX;
+
+        // Rotate sensitivity
+        const newRotationY = startRotationY + (deltaX * 0.5);
+        pizza.setAttribute('rotation', `15 ${newRotationY} 0`);
+      }
+    });
+
+    document.addEventListener('touchend', function (e) {
+      if (e.touches.length < 2) {
+        isPinching = false;
+      }
     });
 
     // Camera permission
