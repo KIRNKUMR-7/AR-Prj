@@ -33,8 +33,8 @@
       look-controls-enabled="false"></a-camera>
 
     <!-- Pizza Model - Perfectly centered -->
-    <a-entity id="pizza" gltf-model="pizza.glb" scale="2 2 2" position="0 0 -2.5" rotation="0 0 0"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
+    <a-entity id="pizza" gltf-model="https://kirnkumr-7.github.io/AR-Prj/pizza.glb" scale="2 2 2" position="0 0 -2.5"
+      rotation="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
       gps-entity-place="latitude: 0; longitude: 0;"></a-entity>
 
     <!-- Lighting -->
@@ -55,6 +55,22 @@
           console.error('Camera access denied:', err);
         });
     }
+
+    // Check if model loads
+    document.querySelector('a-scene').addEventListener('loaded', function () {
+      console.log('AR Scene loaded');
+
+      const pizza = document.querySelector('#pizza');
+      if (pizza) {
+        pizza.addEventListener('model-loaded', function () {
+          console.log('Pizza model loaded successfully!');
+        });
+
+        pizza.addEventListener('model-error', function (error) {
+          console.error('Error loading pizza model:', error);
+        });
+      }
+    });
   </script>
 </body>
 
