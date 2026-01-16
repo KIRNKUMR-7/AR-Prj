@@ -11,6 +11,8 @@
     body {
       margin: 0;
       overflow: hidden;
+      touch-action: none;
+      /* Crucial for gestures */
     }
   </style>
 </head>
@@ -20,7 +22,7 @@
     <a-camera position="0 0 0">
       <!-- Pizza - Close range for "On Menu" feel -->
       <a-entity id="pizza" gltf-model="https://kirnkumr-7.github.io/AR-Prj/pizza.glb" position="0 -0.15 -0.5"
-        scale="0.15 0.15 0.15" rotation="15 0 0" class="clickable"></a-entity>
+        scale="0.15 0.15 0.15" rotation="15 0 0"></a-entity>
     </a-camera>
 
     <!-- Lights -->
@@ -30,64 +32,66 @@
 
   <script>
     const pizza = document.querySelector('#pizza');
-    let startDistance = 0;
-    let startScale = 0.15; // Matches initial scale
-    let isPinching = false;
-    let startX = 0;
+
+    // State variables
+    let currentScale = 0.15;
+    let currentRotationY = 0;
+
+    // Pinch Viewport State
+    let initialPinchDistance = null;
+    let startScale = 0;
+
+    // Drag Rotation State
+    let initialX = null;
     let startRotationY = 0;
 
-    // Touch Handling for Zoom (Pinch) and Rotate (Drag)
+    // Prevent default browser behaviors
+    document.addEventListener('touchmove', function (e) {
+      e.preventDefault();
+    }, { passive: false });
+
+    // Handle Touch Start
     document.addEventListener('touchstart', function (e) {
       if (e.touches.length === 2) {
         // Pinch started
-        isPinching = true;
-        startDistance = Math.hypot(
-          e.touches[0].pageX - e.touches[1].pageX,
-          e.touches[0].pageY - e.touches[1].pageY
-        );
-        // Get current scale (assuming uniform)
-        let currentScaleStr = pizza.getAttribute('scale');
-        startScale = typeof currentScaleStr === 'object' ? currentScaleStr.x : parseFloat(currentScaleStr); // Safe check
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        initialPinchDistance = Math.hypot(touch1.pageX - touch2.pageX, touch1.pageY - touch2.pageY);
+        startScale = currentScale;
       } else if (e.touches.length === 1) {
-        // Drag rotate started
-        startX = e.touches[0].pageX;
-        let rot = pizza.getAttribute('rotation');
-        startRotationY = rot ? rot.y : 0;
+        // Drag started
+        initialX = e.touches[0].pageX;
+        startRotationY = currentRotationY;
       }
     });
 
+    // Handle Touch Move
     document.addEventListener('touchmove', function (e) {
-      if (e.touches.length === 2 && isPinching) {
-        // Pinch Move - Scale
-        e.preventDefault(); // Prevent page zoom
-        const currentDistance = Math.hypot(
-          e.touches[0].pageX - e.touches[1].pageX,
-          e.touches[0].pageY - e.touches[1].pageY
-        );
+      if (e.touches.length === 2 && initialPinchDistance) {
+        // Pinching
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const currentDistance = Math.hypot(touch1.pageX - touch2.pageX, touch1.pageY - touch2.pageY);
 
-        if (startDistance > 0) {
-          const scaleFactor = currentDistance / startDistance;
-          let newScale = startScale * scaleFactor;
+        const pinchRatio = currentDistance / initialPinchDistance;
+        currentScale = Math.max(0.05, Math.min(startScale * pinchRatio, 0.8)); // Limit zoom
 
-          // Limit scale limits
-          newScale = Math.max(0.05, Math.min(newScale, 0.5));
-
-          pizza.setAttribute('scale', `${newScale} ${newScale} ${newScale}`);
-        }
-      } else if (e.touches.length === 1 && !isPinching) {
-        // One finger Move - Rotate
-        const currentX = e.touches[0].pageX;
-        const deltaX = currentX - startX;
-
-        // Rotate sensitivity
-        const newRotationY = startRotationY + (deltaX * 0.5);
-        pizza.setAttribute('rotation', `15 ${newRotationY} 0`);
+        pizza.setAttribute('scale', `${currentScale} ${currentScale} ${currentScale}`);
+      } else if (e.touches.length === 1 && initialX !== null) {
+        // Dragging
+        const deltaX = e.touches[0].pageX - initialX;
+        currentRotationY = startRotationY + (deltaX * 0.5);
+        pizza.setAttribute('rotation', `15 ${currentRotationY} 0`);
       }
-    });
+    }, { passive: false });
 
+    // Handle Touch End
     document.addEventListener('touchend', function (e) {
       if (e.touches.length < 2) {
-        isPinching = false;
+        initialPinchDistance = null;
+      }
+      if (e.touches.length === 0) {
+        initialX = null;
       }
     });
 
