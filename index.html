@@ -17,11 +17,11 @@
 
 <body>
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
-    <a-camera position="0 0 0"></a-camera>
-
-    <!-- Pizza - Horizontal (flat), clear vision -->
-    <a-entity id="pizza" gltf-model="https://kirnkumr-7.github.io/AR-Prj/pizza.glb" position="0 0.5 -2"
-      scale="1.2 1.2 1.2" rotation="-90 0 0" class="clickable"></a-entity>
+    <a-camera position="0 0 0">
+      <!-- Pizza attached to camera - moves with camera, horizontal view -->
+      <a-entity id="pizza" gltf-model="https://kirnkumr-7.github.io/AR-Prj/pizza.glb" position="0 -0.3 -1.5"
+        scale="0.5 0.5 0.5" rotation="0 0 0" class="clickable"></a-entity>
+    </a-camera>
 
     <!-- Lights -->
     <a-light type="ambient" intensity="1.5"></a-light>
@@ -29,52 +29,21 @@
   </a-scene>
 
   <script>
-    let isRotating = false;
     let currentRotation = 0;
     const pizza = document.querySelector('#pizza');
 
-    // Touch/click to rotate (Y axis for horizontal pizza)
+    // Touch/click to rotate
     pizza.addEventListener('click', function () {
-      if (!isRotating) {
-        // Start rotation
-        isRotating = true;
-        currentRotation += 90; // Rotate 90 degrees each tap
-        pizza.setAttribute('animation', {
-          property: 'rotation',
-          to: `-90 ${currentRotation} 0`,
-          dur: 500,
-          easing: 'easeInOutQuad'
-        });
-
-        // Stop rotation after animation
-        setTimeout(() => {
-          isRotating = false;
-        }, 500);
-      }
+      currentRotation += 90;
+      pizza.setAttribute('animation', {
+        property: 'rotation',
+        to: `0 ${currentRotation} 0`,
+        dur: 500,
+        easing: 'easeInOutQuad'
+      });
     });
 
-    // Alternative: Continuous rotation on touch
-    let touchStartX = 0;
-    let touchStartRotation = 0;
-
-    pizza.addEventListener('mousedown', function (e) {
-      touchStartX = e.detail.intersection.point.x;
-      touchStartRotation = currentRotation;
-    });
-
-    pizza.addEventListener('mousemove', function (e) {
-      if (touchStartX !== 0) {
-        const deltaX = e.detail.intersection.point.x - touchStartX;
-        currentRotation = touchStartRotation + (deltaX * 100);
-        pizza.setAttribute('rotation', `-90 ${currentRotation} 0`);
-      }
-    });
-
-    pizza.addEventListener('mouseup', function () {
-      touchStartX = 0;
-    });
-
-    // Ensure camera permission
+    // Camera permission
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
       .then(stream => {
         console.log('Camera OK');
